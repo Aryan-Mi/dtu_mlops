@@ -3,6 +3,7 @@ import torch
 import typer
 from data_solution import corrupt_mnist
 from model_solution import MyAwesomeModel
+from torch.utils.data import DataLoader
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -18,7 +19,7 @@ def train(lr: float = 1e-3, batch_size: int = 32, epochs: int = 10) -> None:
     model = MyAwesomeModel().to(DEVICE)
     train_set, _ = corrupt_mnist()
 
-    train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size)
+    train_dataloader = DataLoader(train_set, batch_size=batch_size)
 
     loss_fn = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -61,7 +62,7 @@ def evaluate(model_checkpoint: str) -> None:
     model.load_state_dict(torch.load(model_checkpoint))
 
     _, test_set = corrupt_mnist()
-    test_dataloader = torch.utils.data.DataLoader(test_set, batch_size=32)
+    test_dataloader = DataLoader(test_set, batch_size=32)
 
     model.eval()
     correct, total = 0, 0

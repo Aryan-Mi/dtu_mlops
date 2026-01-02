@@ -1,5 +1,5 @@
 import torch
-from torch import nn
+from torch import Tensor, nn
 
 
 class MyAwesomeModel(nn.Module):
@@ -13,7 +13,7 @@ class MyAwesomeModel(nn.Module):
         self.dropout = nn.Dropout(0.5)
         self.fc1 = nn.Linear(128, 10)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         """Forward pass."""
         x = torch.relu(self.conv1(x))
         x = torch.max_pool2d(x, 2, 2)
