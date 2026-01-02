@@ -1,10 +1,12 @@
+from pathlib import Path
+
 import matplotlib.pyplot as plt  # only needed for plotting
 import torch
 from mpl_toolkits.axes_grid1 import ImageGrid  # only needed for plotting
 from torch import Tensor
 from torch.utils.data import TensorDataset
 
-DATA_PATH = "data/corruptmnist_v1"
+DATA_PATH = Path(__file__).parent / "data/corruptmnist_v1"
 
 
 def corrupt_mnist() -> tuple[TensorDataset, TensorDataset]:
