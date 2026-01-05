@@ -1,7 +1,7 @@
 import os
 import sys
 
-from invoke import task
+from invoke.tasks import task
 
 CURRENT_DIR = os.getcwd()
 WINDOWS = os.name == "nt"
