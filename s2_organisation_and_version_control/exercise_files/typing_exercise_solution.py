@@ -1,12 +1,19 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 import torch
-from torch import nn
+from torch.nn import Dropout, Linear, Module, ModuleList
+from torch.nn.functional import log_softmax, relu
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
+
+    from torch.utils.data import DataLoader
 
 
-class Network(nn.Module):
+class Network(Module):
     """Builds a feedforward network with arbitrary hidden layers.
 
     Arguments:
@@ -25,30 +32,30 @@ class Network(nn.Module):
     ) -> None:
         super().__init__()
         # Input to a hidden layer
-        self.hidden_layers = nn.ModuleList([nn.Linear(input_size, hidden_layers[0])])
+        self.hidden_layers = ModuleList([Linear(input_size, hidden_layers[0])])
 
         # Add a variable number of more hidden layers
         layer_sizes = zip(hidden_layers[:-1], hidden_layers[1:])
-        self.hidden_layers.extend([nn.Linear(h1, h2) for h1, h2 in layer_sizes])
+        self.hidden_layers.extend([Linear(h1, h2) for h1, h2 in layer_sizes])
 
-        self.output = nn.Linear(hidden_layers[-1], output_size)
+        self.output = Linear(hidden_layers[-1], output_size)
 
-        self.dropout = nn.Dropout(p=drop_p)
+        self.dropout = Dropout(p=drop_p)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the network, returns the output logits."""
         for each in self.hidden_layers:
-            x = nn.functional.relu(each(x))
+            x = relu(each(x))
             x = self.dropout(x)
         x = self.output(x)
 
-        return nn.functional.log_softmax(x, dim=1)
+        return log_softmax(x, dim=1)
 
 
 def validation(
-    model: nn.Module,
-    testloader: torch.utils.data.DataLoader,
-    criterion: Callable | nn.Module,
+    model: Module,
+    testloader: DataLoader,
+    criterion: Callable[[Any, Any], Any] | Module,
 ) -> tuple[float, float]:
     """Validation pass through the dataset."""
     accuracy = 0
@@ -71,10 +78,10 @@ def validation(
 
 
 def train(
-    model: nn.Module,
-    trainloader: torch.utils.data.DataLoader,
-    testloader: torch.utils.data.DataLoader,
-    criterion: Callable | nn.Module,
+    model: Module,
+    trainloader: DataLoader,
+    testloader: DataLoader,
+    criterion: Callable | Module,
     optimizer: None | torch.optim.Optimizer = None,
     epochs: int = 5,
     print_every: int = 40,
